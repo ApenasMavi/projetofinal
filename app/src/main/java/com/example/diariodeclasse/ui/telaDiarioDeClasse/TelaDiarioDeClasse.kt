@@ -1,5 +1,7 @@
 package com.example.diariodeclasse.ui.telaDiarioDeClasse
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -34,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.diariodeclasse.R
@@ -56,6 +59,8 @@ fun TelaDiarioDeClasse(
         .carregarListaDeAlunos()
         .collectAsState(mutableListOf())
         .value
+
+    Log.d(TAG,"teste ${listaDeAlunos}" )
 
     Scaffold(
         topBar = {
@@ -128,7 +133,11 @@ fun CardAluno(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
 
-                aluno.fotoPerfilUrl?.let { FotoPerfil(it) }
+                if(aluno.fotoPerfilUrl !="") {
+                    aluno.fotoPerfilUrl.let { FotoPerfil(it.toUri()) }
+                }else
+                    FotoPerfil(null)
+
                 aluno.nome.let { DadosMatriculaAluno(it, aluno.curso) }
                 BotaoExpandirDadosAluno(expandir, { expandir = !expandir })
             }

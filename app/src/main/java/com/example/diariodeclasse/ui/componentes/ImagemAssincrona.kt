@@ -19,7 +19,7 @@ import com.example.diariodeclasse.R
 
 @Composable
 fun FotoPerfil(
-    urlImagem: Uri
+    urlImagem: Uri?
 ) {
     AsyncImage(
         model = ImageRequest.Builder(LocalContext.current)

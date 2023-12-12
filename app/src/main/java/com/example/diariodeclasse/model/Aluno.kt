@@ -5,7 +5,7 @@ import android.net.Uri
 data class Aluno(
     var nome:String="",
     var curso:String ="",
-    var fotoPerfilUrl: Uri? =null,
+    var fotoPerfilUrl: String ="",
     var notas:Int = 0,
     var faltas:Int = 0
 )

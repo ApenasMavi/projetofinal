@@ -66,7 +66,7 @@ fun TelaInicial(
                     .build(),
                 placeholder = painterResource(R.drawable.add_a_photo),
                 contentDescription = null,
-                contentScale = ContentScale.Inside,
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(150.dp)
                     .clip(CircleShape),

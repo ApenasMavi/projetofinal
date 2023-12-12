@@ -1,6 +1,8 @@
 package com.example.diariodeclasse.ui.telaCadastroAluno
 
+import android.content.ContentValues.TAG
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -9,6 +11,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -45,9 +48,13 @@ fun TelaCadastroAluno(
     viewModelCompartilhado: ViewModelCompartilhado = viewModel(),
     controleDeNavegacao:NavController
 ){
-
     val telaCadastroAlunoUIState by telaCadastroAlunoViewModel.telaCadastroAlunoUIState.collectAsState()
 
+    if(telaCadastroAlunoUIState.cadastroEfetuado){
+        telaCadastroAlunoViewModel.limpaTelaCadastro()
+        controleDeNavegacao.popBackStack()
+    }
+    Log.d(TAG,"teste2${telaCadastroAlunoUIState.cadastroEfetuado}")
 
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
@@ -77,6 +84,7 @@ fun TelaCadastroAluno(
     ) { espacosDasBarras ->
         Column (
             modifier = Modifier
+                .fillMaxSize()
                 .padding(espacosDasBarras),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -108,13 +116,8 @@ fun TelaCadastroAluno(
             Botao(
                 idTextoBotao = R.string.cadastrar,
                 onClick = {
-                    FirebaseCloudFirestore().salvarAluno(
-                        Aluno(
-                            telaCadastroAlunoViewModel.campoNome,
-                            telaCadastroAlunoViewModel.campoCurso,
-                            telaCadastroAlunoViewModel.fotoPerfilUri
-                        )
-                    )
+                    telaCadastroAlunoViewModel.salvarAluno()
+                    controleDeNavegacao.popBackStack()
                 }
             )
         }

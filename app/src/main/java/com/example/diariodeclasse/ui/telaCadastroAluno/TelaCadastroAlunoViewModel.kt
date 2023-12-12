@@ -1,19 +1,27 @@
 package com.example.diariodeclasse.ui.telaCadastroAluno
 
+import android.content.ContentValues.TAG
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.KeyboardType.Companion.Uri
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
+import com.example.diariodeclasse.model.Aluno
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 class TelaCadastroAlunoViewModel():ViewModel() {
 
-    private val _telaCadastroAlunoUIState = MutableStateFlow<TelaCadastroAlunoUIState?>(null)
-    var telaCadastroAlunoUIState: StateFlow<TelaCadastroAlunoUIState?> = _telaCadastroAlunoUIState.asStateFlow()
+    private var _telaCadastroAlunoUIState = MutableStateFlow(TelaCadastroAlunoUIState())
+    val telaCadastroAlunoUIState: StateFlow<TelaCadastroAlunoUIState> = _telaCadastroAlunoUIState.asStateFlow()
 
     var campoNome by mutableStateOf("")
         private set
@@ -32,6 +40,45 @@ class TelaCadastroAlunoViewModel():ViewModel() {
     }
     fun updateFotoPerfilUri(fotoPerfilUri: Uri){
         this.fotoPerfilUri = fotoPerfilUri
+    }
+    fun limpaTelaCadastro(){
+        this.campoNome = ""
+        this.campoCurso = ""
+        this.fotoPerfilUri = null
+        _telaCadastroAlunoUIState.update { currentState ->
+            currentState.copy(
+                cadastroEfetuado = false
+            )
+        }
+    }
+
+    fun salvarAluno(){
+        val db = FirebaseFirestore.getInstance()
+        val alunoRef = db.collection("Alunos").document()
+        alunoRef.set(Aluno(campoNome,campoCurso,fotoPerfilUri.toString()))
+        val filename = campoNome
+        val ref = Firebase.storage.reference.child("/fotoAlunos/$filename")
+        val uploadTask = fotoPerfilUri.let { ref.putFile(it!!) }
+        uploadTask.continueWithTask { task ->
+            if (!task.isSuccessful) {
+                task.exception?.let {
+                    throw it
+                }
+            }
+            ref.downloadUrl
+        }.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val url =task.result.toString()
+                alunoRef.update("fotoPerfilUrl",url)
+
+                _telaCadastroAlunoUIState.value.cadastroEfetuado = true
+                Log.d(TAG,"teste ${_telaCadastroAlunoUIState.value.cadastroEfetuado}")
+
+                // mensagemToast(context, "Sucesso!!")
+            } else {
+                //mensagemToast(context, "Falha")
+            }
+        }
     }
 
 }
