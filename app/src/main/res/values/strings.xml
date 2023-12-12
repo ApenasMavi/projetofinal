@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Diario de Classe</string>
+    <string name="nome">Nome</string>
+    <string name="email">Email</string>
+    <string name="senha">Senha</string>
+    <string name="confirmar_senha">Confirmar Senha</string>
+    <string name="entrar">Entrar</string>
+    <string name="cadastrar">Cadastrar</string>
+    <string name="diario_de_classe">Diario de Classe</string>
+    <string name="lista_de_alunos">Lista de Alunos</string>
+    <string name="erroEmailSenha">Email ou Senha Incorretos</string>
+    <string name="curso">Curso</string>
+    <string name="cadastrar_aluno">Cadastrar Aluno</string>
+</resources>
