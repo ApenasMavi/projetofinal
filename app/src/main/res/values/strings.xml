@@ -11,4 +11,6 @@
     <string name="erroEmailSenha">Email ou Senha Incorretos</string>
     <string name="curso">Curso</string>
     <string name="cadastrar_aluno">Cadastrar Aluno</string>
+    <string name="nota">Nota</string>
+    <string name="faltas">Faltas</string>
 </resources>

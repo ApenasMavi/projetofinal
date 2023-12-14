@@ -14,6 +14,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Card
@@ -33,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -43,6 +47,7 @@ import com.example.diariodeclasse.R
 import com.example.diariodeclasse.ViewModelCompartilhado
 import com.example.diariodeclasse.model.Aluno
 import com.example.diariodeclasse.model.Tela
+import com.example.diariodeclasse.ui.componentes.CampoDeTexto
 import com.example.diariodeclasse.ui.componentes.FotoPerfil
 import com.example.diariodeclasse.ui.componentes.TopBar
 
@@ -50,7 +55,7 @@ import com.example.diariodeclasse.ui.componentes.TopBar
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TelaDiarioDeClasse(
-    controleDeNavegacao:NavController,
+    controleDeNavegacao: NavController,
     viewModelCompartilhado: ViewModelCompartilhado = viewModel(),
     telaDiarioDeClasseViewModel: TelaDiarioDeClasseViewModel = viewModel()
 ) {
@@ -60,7 +65,7 @@ fun TelaDiarioDeClasse(
         .collectAsState(mutableListOf())
         .value
 
-    Log.d(TAG,"teste ${listaDeAlunos}" )
+    Log.d(TAG, "teste ${listaDeAlunos}")
 
     Scaffold(
         topBar = {
@@ -97,15 +102,17 @@ fun TelaDiarioDeClasse(
                 .padding(espacosDasBarras)
         ) {
             items(listaDeAlunos) { aluno ->
-                CardAluno(aluno = aluno)
+                CardAluno(aluno = aluno, telaDiarioDeClasseViewModel=telaDiarioDeClasseViewModel)
             }
         }
     }
+
 }
 
 @Composable
 fun CardAluno(
-    aluno: Aluno
+    aluno: Aluno,
+    telaDiarioDeClasseViewModel:TelaDiarioDeClasseViewModel
 ) {
     var expandir by remember { mutableStateOf(false) }
 
@@ -133,22 +140,21 @@ fun CardAluno(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
 
-                if(aluno.fotoPerfilUrl !="") {
+                if (aluno.fotoPerfilUrl != "") {
                     aluno.fotoPerfilUrl.let { FotoPerfil(it.toUri()) }
-                }else
+                } else
                     FotoPerfil(null)
 
                 aluno.nome.let { DadosMatriculaAluno(it, aluno.curso) }
                 BotaoExpandirDadosAluno(expandir, { expandir = !expandir })
             }
             if (expandir) {
-                DadosRendimentoAluno(aluno.notas, aluno.faltas)
+                DadosRendimentoAluno(aluno,telaDiarioDeClasseViewModel)
             }
         }
     }
 
 }
-
 
 @Composable
 fun DadosMatriculaAluno(
@@ -173,24 +179,71 @@ fun DadosMatriculaAluno(
 
 @Composable
 fun DadosRendimentoAluno(
-    nota: Int,
-    faltas: Int
+    aluno: Aluno,
+    telaDiarioDeClasseViewModel:TelaDiarioDeClasseViewModel
 ) {
-    Column(
-        modifier = Modifier
-            .padding(20.dp)
-            .fillMaxWidth()
-    ) {
-        Text(
-            text = "Nota: $nota",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = "Faltas: $faltas",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold
-        )
+
+    var editar by remember { mutableStateOf(false) }
+
+    Row {
+        Column(
+            modifier = Modifier
+                .padding(20.dp)
+        ) {
+            if (!editar) {
+
+                Text(
+                    text = "Nota: ${aluno.nota}",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Faltas: ${aluno.faltas}",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            } else {
+                CampoDeTexto(
+                    value = "${aluno.nota}",
+                    onValueChange = { aluno.nota = it.toInt() },
+                    idTextoLabel = R.string.nota
+                )
+                CampoDeTexto(
+                    value = "${aluno.faltas}",
+                    onValueChange = { aluno.faltas = it.toInt() },
+                    idTextoLabel = R.string.faltas
+                )
+            }
+        }
+        IconButton(
+            onClick = {
+
+            },
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Clear,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.secondary
+            )
+        }
+
+        IconButton(
+            onClick = {
+                if (editar) {
+                    telaDiarioDeClasseViewModel.editarAluno(aluno)
+                    editar = false
+                }
+            },
+        ) {
+            Icon(
+                imageVector = if (editar)
+                    Icons.Filled.Check
+                else
+                    Icons.Filled.Create,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.secondary
+            )
+        }
     }
 }
 

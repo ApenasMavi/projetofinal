@@ -55,8 +55,15 @@ class TelaCadastroAlunoViewModel():ViewModel() {
     fun salvarAluno(){
         val db = FirebaseFirestore.getInstance()
         val alunoRef = db.collection("Alunos").document()
-        alunoRef.set(Aluno(campoNome,campoCurso,fotoPerfilUri.toString()))
-        val filename = campoNome
+        alunoRef.set(
+            Aluno(
+                id = alunoRef.id,
+                nome = campoNome,
+                curso = campoCurso,
+                fotoPerfilUrl = fotoPerfilUri.toString()
+            )
+        )
+        val filename = "${campoNome}-${alunoRef.id}"
         val ref = Firebase.storage.reference.child("/fotoAlunos/$filename")
         val uploadTask = fotoPerfilUri.let { ref.putFile(it!!) }
         uploadTask.continueWithTask { task ->
@@ -72,7 +79,6 @@ class TelaCadastroAlunoViewModel():ViewModel() {
                 alunoRef.update("fotoPerfilUrl",url)
 
                 _telaCadastroAlunoUIState.value.cadastroEfetuado = true
-                Log.d(TAG,"teste ${_telaCadastroAlunoUIState.value.cadastroEfetuado}")
 
                 // mensagemToast(context, "Sucesso!!")
             } else {
